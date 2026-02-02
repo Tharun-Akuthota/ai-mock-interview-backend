@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { createInterview } from "./interview.controller";
 import { authMiddleware } from "../../middleware/auth.middleware";
+import { createInterview, sendMessage } from "./interview.controller";
 
 const router = Router();
 
 router.post("/start", authMiddleware, createInterview);
+router.post("/message", authMiddleware, sendMessage);
 
 export default router;
