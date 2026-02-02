@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { loginUser, registerUser } from "./auth.service";
 import { generateToken } from "../../utils/jwt";
-import { User } from "../../models/User";
 
 export const register = async (req: Request, res: Response) => {
   try {
