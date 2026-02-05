@@ -1,4 +1,5 @@
 import { Interview } from "../../models/Interview";
+import { generateAIResponse } from "../../utils/ai";
 
 export const startInterview = async (userId: string, type: string) => {
   const interview = await Interview.create({
@@ -36,15 +37,25 @@ export const addMessageToInterview = async (
     timestamp: new Date(),
   });
 
-  const aiReply = "That's a good point. Can you explain it in detail?";
+  const aiReply = await generateAIResponse(interview.messages);
 
   interview.messages.push({
     sender: "ai",
-    text: aiReply,
+    text: aiReply || "Sorry, I couldn't respond",
     timestamp: new Date(),
   });
 
   await interview.save(); // Save to DB
+
+  return interview;
+};
+
+export const getInterviewById = async (interviewId: string, userId: string) => {
+  const interview = await Interview.findOne({ _id: interviewId, userId });
+
+  if (!interview) {
+    throw new Error("Interview not found");
+  }
 
   return interview;
 };

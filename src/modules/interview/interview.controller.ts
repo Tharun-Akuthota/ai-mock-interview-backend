@@ -2,6 +2,7 @@ import { Response } from "express";
 import { startInterview } from "./interview.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import { addMessageToInterview } from "./interview.service";
+import { getInterviewById } from "./interview.service";
 
 export const createInterview = async (req: AuthRequest, res: Response) => {
   try {
@@ -48,6 +49,20 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
   } catch (error: any) {
     return res.status(400).json({
       message: error.message || "Failed to send message",
+    });
+  }
+};
+
+export const getInterview = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.userId;
+    const interview = await getInterviewById(id, userId);
+
+    return res.status(200).json({ interview });
+  } catch (error: any) {
+    return res.status(404).json({
+      message: error.message,
     });
   }
 };
