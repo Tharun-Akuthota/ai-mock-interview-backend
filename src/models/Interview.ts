@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Mongoose } from "mongoose";
 export interface IMessage {
   sender: "user" | "ai";
   text: string;
-  timeStamp: Date;
+  timestamp: Date;
 }
 
 export interface IInterview extends Document {
@@ -18,14 +18,14 @@ export interface IInterview extends Document {
 const MessageSchema = new Schema<IMessage>({
   sender: {
     type: String,
-    enum: ["sender", "ai"],
+    enum: ["user", "ai"],
     required: true,
   },
   text: {
     type: String,
     required: true,
   },
-  timeStamp: {
+  timestamp: {
     type: Date,
     required: true,
   }, // added inside bcs each msg needed its own time
