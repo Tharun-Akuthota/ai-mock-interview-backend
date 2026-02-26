@@ -6,7 +6,7 @@ const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
 });
 
-export const generativeAIResponse = async (
+export const generateAIResponse = async (
   conversation: { sender: "user" | "ai"; text: string }[],
 ) => {
   const history = conversation
