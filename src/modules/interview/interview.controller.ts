@@ -30,9 +30,12 @@ export const createInterview = async (req: AuthRequest, res: Response) => {
 
 export const sendMessage = async (req: AuthRequest, res: Response) => {
   try {
+    console.log("BODY : ", req.body);
+
     const { interviewId, message } = req.body;
 
     if (!interviewId || !message) {
+      console.log("Missing interview id or message");
       return res.status(400).json({
         message: "Interview Id and message are required",
       });
@@ -47,6 +50,7 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
       interview,
     });
   } catch (error: any) {
+    console.error("ERROR: ", error);
     return res.status(400).json({
       message: error.message || "Failed to send message",
     });

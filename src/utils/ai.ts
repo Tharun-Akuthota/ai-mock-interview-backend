@@ -1,34 +1,56 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from "dotenv";
+dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+import { GoogleGenAI } from "@google/genai";
 
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 export const generateAIResponse = async (
   conversation: { sender: "user" | "ai"; text: string }[],
-) => {
+): Promise<string> => {
   const history = conversation
     .map((msg) =>
-      msg.sender === "user" ? `User: ${msg.text}` : `Interviewer: ${msg.text}`,
+      msg.sender === "user"
+        ? `Candidate: ${msg.text}`
+        : `Interviewer: ${msg.text}`,
     )
     .join("\n");
 
   const prompt = `
-    You are a Professional technical interviewer.
-    Ask one question at a time.
-    After each answer, give constructive feedback and ask the next question.
+  You are a professional technical interviewer.
+  
+  For every candidate response: 
+  1. Give constructive feedback on their answer.
+  2. Give a score out of 10.
+  3. Identify 1 strength.
+  4. Identify 1 area for improvement.
+  5.Ask the next technical question.
 
-    Conversation so far:
-    ${history}
+  Respond ONLY in valid JSON with this format:
 
-    Respond as the interviewer.
-    `;
+  {
+    "feedback": "...",
+    "score": number,
+    "strength": "...",
+    "improvement": "...",
+    "nextQuestion": "..."
+  }
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
+  Conversation so far:
+  ${history}
+  `;
 
-  const text = response.text();
-  return text;
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+    });
+
+    return response.text;
+  } catch (error) {
+    console.error("Gemini Error:", error);
+    throw new Error("AI service failed");
+  }
 };

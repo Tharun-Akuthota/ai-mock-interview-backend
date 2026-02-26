@@ -37,8 +37,33 @@ export const addMessageToInterview = async (
     timestamp: new Date(),
   });
 
-  const aiReply = await generateAIResponse(interview.messages);
+  const rawAIResponse = await generateAIResponse(interview.messages);
 
+  let parsed;
+
+  try {
+    const cleanedResponse = rawAIResponse
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+    parsed = JSON.parse(cleanedResponse);
+  } catch (err) {
+    parsed = {
+      feedback: rawAIResponse,
+      score: 5,
+      strength: "N/A",
+      improvement: "N/A",
+      nextQuestion: "Can you explain further?",
+    };
+  }
+
+  // Store feedback separately if you want later
+
+  interview.messages.push({
+    sender: "ai",
+    text: parsed.feedback + "\n\nNext Question: " + parsed.nextQuestion,
+    timestamp: new Date(),
+  });
   interview.messages.push({
     sender: "ai",
     text: aiReply || "Sorry, I couldn't respond",
