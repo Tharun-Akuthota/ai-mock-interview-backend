@@ -1,8 +1,12 @@
 import { Response } from "express";
-import { startInterview } from "./interview.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
-import { addMessageToInterview } from "./interview.service";
-import { getInterviewById } from "./interview.service";
+import {
+  addMessageToInterview,
+  getDashboardStats,
+  startInterview,
+  getInterviewById,
+  endInterview,
+} from "./interview.service";
 
 export const createInterview = async (req: AuthRequest, res: Response) => {
   try {
@@ -51,7 +55,10 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
     });
   } catch (error: any) {
     console.error("ERROR: ", error);
-    return res.status(400).json({
+
+    const status = error.message === "Interview not found" ? 404 : 500;
+
+    return res.status(status).json({
       message: error.message || "Failed to send message",
     });
   }
@@ -66,6 +73,34 @@ export const getInterview = async (req: AuthRequest, res: Response) => {
     return res.status(200).json({ interview });
   } catch (error: any) {
     return res.status(404).json({
+      message: error.message,
+    });
+  }
+};
+
+export const dashboardStats = async (req: AuthRequest, res: Response) => {
+  try {
+    const stats = await getDashboardStats(req.user!.userId);
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to load dashboard stats",
+    });
+  }
+};
+
+export const completeInterview = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.userId;
+    const interview = await endInterview(id, userId);
+
+    res.json({
+      message: "Interview completed",
+      interview,
+    });
+  } catch (error: any) {
+    res.status(400).json({
       message: error.message,
     });
   }

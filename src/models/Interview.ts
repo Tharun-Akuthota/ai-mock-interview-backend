@@ -4,6 +4,9 @@ export interface IMessage {
   sender: "user" | "ai";
   text: string;
   timestamp: Date;
+  score?: number;
+  strength?: string;
+  improvement?: string;
 }
 
 export interface IInterview extends Document {
@@ -11,8 +14,10 @@ export interface IInterview extends Document {
   type: string;
   messages: IMessage[];
   feedback?: string;
-  score?: string;
+  score?: number;
   createdAt: Date;
+  summary?: string;
+  finalRecommendation?: string;
 }
 
 const MessageSchema = new Schema<IMessage>({
@@ -29,6 +34,10 @@ const MessageSchema = new Schema<IMessage>({
     type: Date,
     required: true,
   }, // added inside bcs each msg needed its own time
+
+  score: Number,
+  strength: String,
+  improvement: String,
 });
 
 const InterviewSchema = new Schema<IInterview>(
@@ -48,6 +57,8 @@ const InterviewSchema = new Schema<IInterview>(
       type: String,
     },
     score: Number,
+    summary: String,
+    finalRecommendation: String,
   },
   {
     timestamps: { createdAt: true, updatedAt: false }, // added outside {} bcs it is Mongoose Option, automatic feature added/maintained by Mongoose

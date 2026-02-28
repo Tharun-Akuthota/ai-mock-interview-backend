@@ -48,9 +48,50 @@ export const generateAIResponse = async (
       contents: prompt,
     });
 
-    return response.text;
+    return response.text || "";
   } catch (error) {
     console.error("Gemini Error:", error);
     throw new Error("AI service failed");
+  }
+};
+
+export const generateInterviewSummary = async (interviewData: {
+  averageScore: number;
+  strengths: string[];
+  improvements: string[];
+  type: string;
+}) => {
+  const prompt = `
+  You are a senior ${interviewData.type} interviewer.
+
+  Based on:
+  - Average score:${interviewData.averageScore}
+  - Strengths observed: ${interviewData.strengths.join(",")}
+  - Areas needing improvement: ${interviewData.improvements.join(",")}
+
+  Generate:
+  1. A concise professional summary (4-5 sentences).
+  2. A final hiring recommendation (Hire / Strong Hire / No Hire / Lean Hire)
+  3. A clear improvement roadmap.
+
+  Respond STRICTLY ONLY in valid JSON:
+
+  {
+    "summary": "string",
+    "recommendation": "string",
+    "roadmap": "string"
+  }
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+    });
+
+    return response.text || "";
+  } catch (error) {
+    console.log("INTERVIEW SUMMARY ERROR: ", error);
+    throw new Error("Unable to generate Interview Summary");
   }
 };
